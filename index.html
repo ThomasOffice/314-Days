@@ -605,6 +605,70 @@ header p {
   opacity: .5;
 }
 
+/* ===== Video Player ===== */
+#video-toggle {
+  display: flex; justify-content: center;
+  padding: 8px 20px;
+  animation: fadeIn 1s .6s ease-out both;
+}
+#video-toggle .btn {
+  background: linear-gradient(135deg, rgba(201,168,76,.15), rgba(139,69,19,.1));
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: all .3s ease;
+  letter-spacing: .1em;
+}
+#video-toggle .btn:hover {
+  background: var(--gold);
+  color: var(--bg);
+  box-shadow: 0 0 16px rgba(201,168,76,.4);
+}
+
+/* Video Modal */
+#video-modal {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 180;
+  background: rgba(0,0,0,.85);
+  align-items: center; justify-content: center;
+  animation: fadeIn .3s ease-out;
+}
+#video-modal.visible {
+  display: flex;
+}
+#video-container {
+  position: relative;
+  max-width: 90vw; max-height: 80vh;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(201,168,76,.3);
+  background: #000;
+}
+#video-container video {
+  display: block;
+  max-width: 90vw; max-height: 80vh;
+  outline: none;
+}
+#video-close {
+  position: absolute;
+  top: -40px; right: 0;
+  background: none; border: none;
+  color: var(--gold);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all .3s;
+}
+#video-close:hover {
+  color: #fff;
+  transform: scale(1.2);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 640px) {
   header h1 { font-size: 1.6rem; }
@@ -801,7 +865,23 @@ header p {
     <p>Record This Epic</p>
   </header>
 
-  <!-- Loading -->
+  <!-- Video Toggle -->
+<div id="video-toggle">
+  <button class="btn">▶ 播放视频</button>
+</div>
+
+<!-- Video Modal -->
+<div id="video-modal">
+  <div id="video-container">
+    <button id="video-close">×</button>
+    <video controls>
+      <source src="video.mp4" type="video/mp4">
+      您的浏览器不支持视频播放
+    </video>
+  </div>
+</div>
+
+<!-- Loading -->
   <div id="loading">
     <div class="spinner"></div>
     <p>正在翻阅日记…</p>
@@ -966,7 +1046,34 @@ header p {
     setTimeout(() => toastEl.classList.remove('show'), dur || 2000);
   }
 
-  // ===== Load diary =====
+  // ===== Video =====
+const videoModal = document.getElementById('video-modal');
+const videoClose = document.getElementById('video-close');
+const videoToggleBtn = document.querySelector('#video-toggle .btn');
+
+videoToggleBtn.addEventListener('click', () => {
+  videoModal.classList.add('visible');
+  const video = videoModal.querySelector('video');
+  video.play().catch(() => {});
+});
+
+videoClose.addEventListener('click', () => {
+  videoModal.classList.remove('visible');
+  const video = videoModal.querySelector('video');
+  video.pause();
+  video.currentTime = 0;
+});
+
+videoModal.addEventListener('click', (e) => {
+  if (e.target === videoModal) {
+    videoModal.classList.remove('visible');
+    const video = videoModal.querySelector('video');
+    video.pause();
+    video.currentTime = 0;
+  }
+});
+
+// ===== Load diary =====
   async function loadDiary() {
     loading.classList.add('visible');
     try {
